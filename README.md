@@ -4,7 +4,7 @@ This project includes the latest distribution of googletest, a subset of boost, 
 
 # Building
 
-If you already have the latest version of GoogleTest installed, you can update the CMakeLists.txt file in ./libraryTest to properly reference it (or an env variable). Or you can choose to build the included distribution of GoogleTest. One way to build it:
+If you already have the latest version of GoogleTest installed, you can update the CMakeLists.txt file in ./libraryTest to properly reference it (or use the EXT_PREFIX env variable). Or you can choose to build the included distribution of GoogleTest. One way to build it:
 
     cd googletest
     cmake .
@@ -27,8 +27,12 @@ If you receive an error about openssl/ssh.h not being found:
 
 You will likely receive some warnings when building ftplibpp.
 
-Run the bash script that builds and executes the tests:
+Run the bash script that builds and executes the tests.
 
     ./test
+
+Note that you can also optionally specify a path for 3rd party dependencies. For example
+
+    EXT_PATH=/opt/local ./test
 
 You should see well over 100 tests that are passing (green).

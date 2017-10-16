@@ -7,13 +7,13 @@ if [[ -e "library/LibraryTest" ]]; then
 fi
 pushd library
 if [[ ! -e "Makefile" ]]; then
-  cmake .
+  cmake -DEXT_PREFIX=${EXT_PREFIX} .
 fi
 make
 popd
 pushd libraryTest
 if [[ ! -e "Makefile" ]]; then
-  cmake .
+  cmake -DEXT_PREFIX=${EXT_PREFIX} .
 fi
 make
 ./libraryTest "$@"

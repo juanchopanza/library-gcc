@@ -1,7 +1,14 @@
 project(library)
 cmake_minimum_required(VERSION 3.7)
 
-include_directories(../boost ./include ../ftplibpp)
+if (EXT_PREFIX)
+    include_directories(${EXT_PREFIX}/include)
+else()
+    include_directories(../boost)
+endif()
+
+include_directories(./include ../ftplibpp)
+
 add_definitions(-std=c++11)
 add_definitions(-DNOSSL)
 

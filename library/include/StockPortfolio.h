@@ -18,20 +18,17 @@ struct StockPortfolio
 
     void sell(const std::string& symbol, std::size_t quantity)
     {
-        try {
-            size_t owned = shares_.at(symbol);
-            if (quantity > owned)
-                throw InvalidTradeException();
-
-            shares_[symbol] -= quantity;
-            if (count(symbol) == 0)
-            {
-                shares_.erase(symbol);
-            }
-        } catch(const std::exception& e)
-        {
+        auto it = shares_.find(symbol);
+        if (it == shares_.end() || it->second < quantity)
             throw InvalidTradeException();
+
+        if (it->second == quantity)
+        {
+            shares_.erase(it);
+            return;
         }
+
+        it->second -= quantity;
     }
 
     std::size_t countUnique() const

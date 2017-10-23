@@ -2,41 +2,21 @@
 #define NAME_NORMALIZER_H
 
 #include <string>
+#include <vector>
 #include <exception>
 #include <stdexcept>
 #include <sstream>
-
-#include "StringUtil.h"
 
 class InvalidNameException : public std::exception {};
 
 class NormalizedName {
 public:
-    NormalizedName(const std::string& name) 
-        : _name{name} {
-        throwIfContainsTwoCommas(_name);   
-    }
-    ~NormalizedName() {}
+    NormalizedName(const std::string& name);
 
-    std::string AsString() const {
-        auto trimmed{stringutil::trim(_name)};
-        auto baseName{removeSuffix(trimmed)};
-        auto parts{stringutil::split(baseName, ' ')};
-
-        if (parts.size() < 2) return trimmed;
-
-        return lastName(parts) + ", " + firstName(parts) 
-             + middleInitials(parts) + suffix(trimmed);
-    }
+    std::string AsString() const;
 
 private:
     std::string _name;
-
-    void throwIfContainsTwoCommas(const std::string& name) const {
-        if (2 == std::count(name.begin(), name.end(), ','))
-            throw InvalidNameException();
-    }
-
 
     std::string removeSuffix(const std::string& name) const {
         auto commaIndex{name.find(',')};
@@ -48,6 +28,7 @@ private:
         auto commaIndex{name.find(',')};
         if (commaIndex == std::string::npos) return "";
         return name.substr(commaIndex);
+        return m_name;
     }
 
     std::string initial(const std::string& name) const {
@@ -76,6 +57,9 @@ private:
         return parts.back();
     }
 
+private:
+
+std::string m_name;
 };
 
 #endif

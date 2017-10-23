@@ -23,7 +23,8 @@ set(sources
    MailDestination.cpp
    MailMessage.cpp
    Movie.cpp
-   include/NameNormalizer.h
+   NameNormalizer.cpp
+   #include/NameNormalizer.h
    Patron.cpp
    PatronAccess.cpp
    PatronService.cpp

@@ -4,47 +4,43 @@
 
 using namespace testing;
 
-TEST(AStockPortfolio, isEmptyOnCreation)
+struct AStockPortfolio : Test
 {
     StockPortfolio portfolio;
+};
 
+TEST_F(AStockPortfolio, isEmptyOnCreation)
+{
     ASSERT_TRUE(portfolio.empty());
 }
 
-TEST(AStockPortfolio, isNotEmptyAfterPurchase)
+TEST_F(AStockPortfolio, isNotEmptyAfterPurchase)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 3);
-
     ASSERT_FALSE(portfolio.empty());
 }
 
-TEST(AStockPortfolio, uniqueSymbolCountIsZeroOnCreation)
+TEST_F(AStockPortfolio, uniqueSymbolCountIsZeroOnCreation)
 {
-    StockPortfolio portfolio;
-
     ASSERT_THAT(portfolio.countUnique(), Eq(0));
 }
 
-TEST(AStockPortfolio, uniqueSymbolCountIncrementsAfterPurchasingNewSymbol)
+TEST_F(AStockPortfolio, uniqueSymbolCountIncrementsAfterPurchasingNewSymbol)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 3);
     ASSERT_THAT(portfolio.countUnique(), Eq(1));
 }
 
-TEST(AStockPortfolio, uniqueSymbolCountOnlyIncrementsOnceAfterPurchasingSameSymbol)
+TEST_F(AStockPortfolio, uniqueSymbolCountOnlyIncrementsOnceAfterPurchasingSameSymbol)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 1);
     ASSERT_THAT(portfolio.countUnique(), Eq(1));
     portfolio.purchase("APPL", 1);
     ASSERT_THAT(portfolio.countUnique(), Eq(1));
 }
 
-TEST(AStockPortfolio, uniqueSymbolCountIncrementsOncePerNewSymbolPurchase)
+TEST_F(AStockPortfolio, uniqueSymbolCountIncrementsOncePerNewSymbolPurchase)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 3);
     ASSERT_THAT(portfolio.countUnique(), Eq(1));
     portfolio.purchase("IBM", 5);
@@ -53,9 +49,8 @@ TEST(AStockPortfolio, uniqueSymbolCountIncrementsOncePerNewSymbolPurchase)
     ASSERT_THAT(portfolio.countUnique(), Eq(3));
 }
 
-TEST(AStockPortfolio, hasNoSharesOnCreation)
+TEST_F(AStockPortfolio, hasNoSharesOnCreation)
 {
-    StockPortfolio portfolio;
     const char* stocks[] = {"APPL", "GOOGL", "IBM", "foo", "bar", "baz"};
     for (auto stock: stocks)
     {
@@ -63,16 +58,14 @@ TEST(AStockPortfolio, hasNoSharesOnCreation)
     }
 }
 
-TEST(AStockPortfolio, purchasesExpectedAmountOfShares)
+TEST_F(AStockPortfolio, purchasesExpectedAmountOfShares)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 3);
     ASSERT_THAT(portfolio.count("APPL"), Eq(3));
 }
 
-TEST(AStockPortfolio, countIncrementsOnceAfterSuccessivePurchases)
+TEST_F(AStockPortfolio, countIncrementsOnceAfterSuccessivePurchases)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 1);
     ASSERT_THAT(portfolio.count("APPL"), Eq(1));
     portfolio.purchase("APPL", 1);
@@ -80,17 +73,15 @@ TEST(AStockPortfolio, countIncrementsOnceAfterSuccessivePurchases)
 }
 
 
-TEST(AStockPortfolio, countDecrementsWhenSellingShares)
+TEST_F(AStockPortfolio, countDecrementsWhenSellingShares)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 5);
     portfolio.sell("APPL", 3);
     ASSERT_THAT(portfolio.count("APPL"), Eq(2));
 }
 
-TEST(AStockPortfolio, countIsZeroAfterSellingAllShares)
+TEST_F(AStockPortfolio, countIsZeroAfterSellingAllShares)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 5);
     portfolio.sell("APPL", 5);
     ASSERT_THAT(portfolio.count("APPL"), Eq(0));
@@ -98,15 +89,13 @@ TEST(AStockPortfolio, countIsZeroAfterSellingAllShares)
     ASSERT_TRUE(portfolio.empty());
 }
 
-TEST(AStockPortfolio, cannotSellNonOwnedShares)
+TEST_F(AStockPortfolio, cannotSellNonOwnedShares)
 {
-    StockPortfolio portfolio;
     portfolio.purchase("APPL", 3);
     ASSERT_THROW(portfolio.sell("APPL", 5), InvalidTradeException);
 }
 
-TEST(AStockPortfolio, cannotSellFromEmptyPortfolio)
+TEST_F(AStockPortfolio, cannotSellFromEmptyPortfolio)
 {
-    StockPortfolio portfolio;
     ASSERT_THROW(portfolio.sell("APPL", 5), InvalidTradeException);
 }

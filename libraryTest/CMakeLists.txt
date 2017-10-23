@@ -35,6 +35,7 @@ set(sources
    ScannerStateWaitingTest.cpp
    ScannerTest.cpp
    ScannerTestData.cpp
+   StockPortFolioTest.cpp
    StreamLineReaderTest.cpp
    TimestampSourceTest.cpp
    VectorReaderTest.cpp

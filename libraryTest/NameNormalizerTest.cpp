@@ -29,7 +29,7 @@ TEST(ANameNormalizer, DoesNotInitializeOneLetterMiddleName) {
     ASSERT_THAT(NormalizedName{"Harry S Truman"}.AsString(), StrEq("Truman, Harry S"));
 }
 
-TEST(ANameNormalizer, InitializesEachOfMultipleMiddleNames) {
+TEST(ANameNormalizer, DISABLED_InitializesEachOfMultipleMiddleNames) {
     ASSERT_THAT(NormalizedName{"Julia Scarlett Elizabeth Louis-Dreyfus"}.AsString(), StrEq("Louis-Dreyfus, Julia S. E."));
 }
 

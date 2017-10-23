@@ -18,14 +18,19 @@ struct StockPortfolio
 
     void sell(const std::string& symbol, std::size_t quantity)
     {
-        size_t owned = shares_.at(symbol);
-        if (quantity > owned)
-            throw InvalidTradeException();
+        try {
+            size_t owned = shares_.at(symbol);
+            if (quantity > owned)
+                throw InvalidTradeException();
 
-        shares_[symbol] -= quantity;
-        if (count(symbol) == 0)
+            shares_[symbol] -= quantity;
+            if (count(symbol) == 0)
+            {
+                shares_.erase(symbol);
+            }
+        } catch(const std::exception& e)
         {
-            shares_.erase(symbol);
+            throw InvalidTradeException();
         }
     }
 

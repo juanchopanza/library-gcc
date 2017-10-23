@@ -104,3 +104,9 @@ TEST(AStockPortfolio, cannotSellNonOwnedShares)
     portfolio.purchase("APPL", 3);
     ASSERT_THROW(portfolio.sell("APPL", 5), InvalidTradeException);
 }
+
+TEST(AStockPortfolio, cannotSellFromEmptyPortfolio)
+{
+    StockPortfolio portfolio;
+    ASSERT_THROW(portfolio.sell("APPL", 5), InvalidTradeException);
+}

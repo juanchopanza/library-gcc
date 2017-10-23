@@ -24,12 +24,12 @@ set(sources
    MailMessage.cpp
    Movie.cpp
    NameNormalizer.cpp
-   #include/NameNormalizer.h
    Patron.cpp
    PatronAccess.cpp
    PatronService.cpp
    Rental.cpp
    ReportUtil.cpp
+   include/RomanNumerals.h
    Scanner.cpp
    ScannerState.cpp
    ScannerStateCheckin.cpp

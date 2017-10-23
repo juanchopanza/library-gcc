@@ -29,6 +29,7 @@ set(sources
    PatronTest.cpp
    PersistenceTest.cpp
    ReportMailerTest.cpp
+   RomanNumeralsTest.cpp
    ScannerStateCheckinTest.cpp
    ScannerStateCheckoutTest.cpp
    ScannerStateInventoryTest.cpp

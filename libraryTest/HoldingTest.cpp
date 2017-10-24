@@ -37,16 +37,16 @@ namespace
     void MakeAvailableAtABranch(Holding& holding) {
         holding.transfer(EAST_BRANCH);
     }
+
+    const date ARBITRARY_DATE(2013, Jan, 1);
 }
 
 class HoldingTest : public Test
 {
 public:
     Holding holding_{THE_TRIAL_CLASSIFICATION, 1};
-    static const date ARBITRARY_DATE;
 };
 
-const date HoldingTest::ARBITRARY_DATE(2013, Jan, 1);
 
 TEST_F(HoldingTest, BarcodeRequiresColon) {
     ASSERT_THROW(Holding("A"), InvalidBarcodeException);
@@ -156,12 +156,25 @@ TEST_F(HoldingTest, IsNotLessThanWhenBarcodesAreEqual) {
     ASSERT_THAT(a < aCopy, Eq(false));
 }
 
+TEST_F(HoldingTest, isNotAvailableAfterCheckout) {
+    holding_.transfer(EAST_BRANCH);
+    date checkoutDate(2007, Mar, 1);
+    holding_.checkOut(checkoutDate);
+    ASSERT_THAT(holding_.isAvailable(), Eq(false));
+}
+
+TEST_F(HoldingTest, lastCheckedOutDateIsCheckoutDate) {
+    holding_.transfer(EAST_BRANCH);
+    date checkoutDate(2007, Mar, 1);
+    holding_.checkOut(checkoutDate);
+    ASSERT_THAT(holding_.lastCheckedOutOn(), Eq(checkoutDate));
+}
+
 TEST_F(HoldingTest, ck) {
     holding_.transfer(EAST_BRANCH);
     date ckon(2007, Mar, 1);
     holding_.checkOut(ckon);
-    ASSERT_THAT(holding_.isAvailable(), Eq(false));
-    ASSERT_THAT(holding_.lastCheckedOutOn(), Eq(ckon));
+    //
     // verify late
     date_duration daysCheckedOut(Book::BOOK_CHECKOUT_PERIOD + 0);
     date expectedDue = ckon + daysCheckedOut;

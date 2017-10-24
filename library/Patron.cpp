@@ -7,13 +7,18 @@
 
 using namespace std;
 
-Patron::Patron(const string& name, const string& cardNumber)
+Patron::Patron(const string& name, const string& cardNumber, const std::string& creditCardNumber)
     : mName(name)
     , mBalance(0) 
-    , mCardNumber(cardNumber) {}
+    , mCardNumber(cardNumber)
+    , mCreditCardNumber(creditCardNumber) {}
 
 string Patron::cardNumber() const {
     return mCardNumber;
+}
+
+string Patron::creditCardNumber() const {
+    return mCreditCardNumber;
 }
 
 std::ostream& operator<<(std::ostream& stream, Patron& patron) {

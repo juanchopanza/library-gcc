@@ -33,6 +33,14 @@ public:
     }
 };
 
+TEST(APatron, hasAttributesSetFromConstructor)
+{
+    Patron joe("Joe", "CARD123", "1234-5678");
+    EXPECT_THAT(joe.name(), StrEq("Joe"));
+    EXPECT_THAT(joe.cardNumber(), StrEq("CARD123"));
+    EXPECT_THAT(joe.creditCardNumber(), StrEq("1234-5678"));
+}
+
 TEST_F(PatronTest, PrintableRepresentation)
 {
     Patron joe("Joe", "p1");

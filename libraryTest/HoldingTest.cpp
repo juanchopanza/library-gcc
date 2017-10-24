@@ -42,7 +42,7 @@ public:
         ASSERT_THAT(holding.isAvailable(), Eq(branch != Branch::CHECKED_OUT));
     }
 
-    bool IsAvailableAt(Holding& aHolding, Branch& branch) {
+    bool IsAvailableAt(const Holding& aHolding, const Branch& branch) {
         return aHolding.currentBranch() == branch &&
             aHolding.isAvailable();
     }

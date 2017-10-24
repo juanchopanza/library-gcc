@@ -10,7 +10,14 @@ using namespace ClassificationData;
 using namespace testing;
 using namespace std;
 
-class PatronServiceTest : public Test {
+struct APatronService : Test
+{
+    void TearDown() override {
+        PatronService::deleteAll();
+    }
+};
+
+class PatronServiceTest : public APatronService {
 public:
     static const string CARD_NUMBER;
     PatronService service;
@@ -26,7 +33,6 @@ public:
     virtual void TearDown() {
         delete jane;
         delete joe;
-        PatronService::deleteAll();
     }
 };
 
@@ -50,7 +56,7 @@ TEST_F(PatronServiceTest, AddIncrementsCount) {
     ASSERT_THAT(service.patronCount(), Eq(2));
 }
 
-TEST(APatronServiceWithVerification, AddFailsWhenCreditLow) {
+TEST_F(APatronService, AddFailsWhenCreditLow) {
     struct FailVerifier : CreditVerifier
     {
         unsigned int creditScore(const std::string& cardNumber) const override
@@ -61,10 +67,49 @@ TEST(APatronServiceWithVerification, AddFailsWhenCreditLow) {
     } verifier;
 
     PatronService service(&verifier);
-    //ASSERT_THAT(service.patronCount(), Eq(0));
     Patron joe("Joe", "p1");
     service.add(joe);
     ASSERT_THAT(service.patronCount(), Eq(0));
+}
+
+TEST_F(APatronService, AddSucceedsWhenCreditSufficient) {
+    struct SuccessVerifier : CreditVerifier
+    {
+        unsigned int creditScore(const std::string& cardNumber) const override
+        {
+            // PatronService cuts as 650
+            return 650;
+        }
+    } verifier;
+
+    PatronService service(&verifier);
+    Patron joe("Joe", "p1");
+    service.add(joe);
+    ASSERT_THAT(service.patronCount(), Eq(1));
+}
+
+TEST_F(APatronService, verificationUsesCreditCardNumber) {
+
+    struct SuccessVerifier : CreditVerifier
+    {
+        unsigned int creditScore(const std::string& cardNumber) const override
+        {
+            // PatronService cuts as 650
+            const static std::map<std::string, unsigned int> CREDIT_MAP = {
+                {"LOW_CREDIT", 649},
+                {"OK_CREDIT", 650}
+            };
+            return CREDIT_MAP.at(cardNumber);
+        }
+    } verifier;
+
+    PatronService service(&verifier);
+    Patron joe("Joe", "p1", "LOW_CREDIT");
+    Patron jane("Jane", "p11", "OK_CREDIT");
+    service.add(joe);
+    service.add(jane);
+    auto patrons = service.getAll();
+    ASSERT_THAT(patrons, ElementsAre(jane));
 }
 
 TEST_F(PatronServiceTest, DeleteAllSetsCountToZero) {

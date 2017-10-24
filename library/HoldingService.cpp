@@ -13,6 +13,28 @@ using namespace std;
 using boost::gregorian::date;
 using namespace service;
 
+namespace
+{
+    // locate the patron with the checked out book
+    // could introduce a patron reference ID in the holding...
+    auto findPatron(const string& classification, const std::vector<Patron>& patrons)->Patron
+    {
+        Patron f;
+        for (const auto& p : patrons)
+        {
+            for (const auto& holding: p.holdings())
+            {
+                if (classification == holding.classification())
+                {
+                    f = p;
+                    break;
+                }
+            }
+        }
+        return f;
+    };
+
+}
 HoldingService::HoldingService() {}
 
 HoldingService::~HoldingService() {}
@@ -87,40 +109,24 @@ void HoldingService::checkIn(const string& barCode, date date, const string& bra
     Branch branch(branchId);
     mBranchService.find(branch);
 
-    auto hld = findByBarCode(barCode);
+    auto holding = findByBarCode(barCode);
 
     // set the holding to returned status
-    hld.checkIn(date, branch);
-    mCatalog.update(hld);
+    holding.checkIn(date, branch);
+    mCatalog.update(holding);
 
-    auto patrons = mPatronService.getAll();
-
-    // locate the patron with the checked out book
-    // could introduce a patron reference ID in the holding...
-    Patron f;
-    for (const auto& p : patrons)
-    {
-        for (auto& holding: p.holdings())
-        {
-            if (hld.classification() == holding.classification())
-                f = p;
-        }
-    }
-
+    Patron f = findPatron(holding.classification(), mPatronService.getAll());
     // remove the book from the patron
-    f.returnHolding(hld);
+    f.returnHolding(holding);
 
     // check for late returns
-    bool isLate = false;
-
-    if (date > hld.dueDate()) // is it late?
-        isLate = true;
+    const bool isLate = date > holding.dueDate(); // is it late?
 
     if (isLate) {
         int daysLate = 1; // calculate # of days past due
 
         ClassificationService service;
-        Book book = service.retrieveDetails(hld.classification());
+        Book book = service.retrieveDetails(holding.classification());
 
         switch (book.type()) {
             case Book::TYPE_BOOK:

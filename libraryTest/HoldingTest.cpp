@@ -31,28 +31,24 @@ This test class is a mess. Opportunities for cleanup might include:
 class HoldingTest : public Test
 {
 public:
-    Holding* holding;
+    Holding holding;
     static const date ARBITRARY_DATE;
     virtual void SetUp() {
-        holding = new Holding(THE_TRIAL_CLASSIFICATION, 1);
-    }
-
-    virtual void TearDown() {
-        delete holding;
+        holding = Holding(THE_TRIAL_CLASSIFICATION, 1);
     }
 
     void VerifyAvailability(const Branch& branch) {
-        ASSERT_THAT(holding->currentBranch(), Eq(branch));
-        ASSERT_THAT(holding->isAvailable(), Eq(branch != Branch::CHECKED_OUT));
+        ASSERT_THAT(holding.currentBranch(), Eq(branch));
+        ASSERT_THAT(holding.isAvailable(), Eq(branch != Branch::CHECKED_OUT));
     }
 
-    bool IsAvailableAt(Holding* holding, Branch& branch) {
-        return holding->currentBranch() == branch &&
-            holding->isAvailable();
+    bool IsAvailableAt(Holding& aHolding, Branch& branch) {
+        return aHolding.currentBranch() == branch &&
+            aHolding.isAvailable();
     }
 
-    void MakeAvailableAtABranch(Holding* holding) {
-        holding->transfer(EAST_BRANCH);
+    void MakeAvailableAtABranch(Holding& holding) {
+        holding.transfer(EAST_BRANCH);
     }
 };
 
@@ -62,6 +58,11 @@ TEST_F(HoldingTest, BarcodeRequiresColon) {
     ASSERT_THROW(Holding("A"), InvalidBarcodeException);
 }
 
+TEST_F(HoldingTest, ValidCreationDoesNotThrow) {
+    ASSERT_NO_THROW(Holding("A123", 3));
+    ASSERT_NO_THROW(Holding("A", 1));
+}
+
 TEST_F(HoldingTest, CanExtractClassificationWhenCreatedWithBarcode) {
     Holding holding(Holding::constructBarcode("A123", 3));
 
@@ -69,30 +70,15 @@ TEST_F(HoldingTest, CanExtractClassificationWhenCreatedWithBarcode) {
 }
 
 TEST_F(HoldingTest, CanExtractCopyNumberWhenCreatedWithBarcode) {
-	try {
-		Holding h(Holding::constructBarcode("A234", 5));
+    Holding h(Holding::constructBarcode("A234", 5));
 
-		ASSERT_THAT(h.copyNumber(), Eq(5));
-	}
-	catch (...)
-	{
-		FAIL();
-		cout << "failed test avail" << endl;
-	}
+    ASSERT_THAT(h.copyNumber(), Eq(5));
 }
 
 TEST_F(HoldingTest, IsNotAvailableWhenCreated) {
-	cout << "vavail test" << endl;
-	try {
-		Holding holding(Holding::constructBarcode("A", 1));
+    Holding holding(Holding::constructBarcode("A", 1));
 
-		ASSERT_THAT(holding.isAvailable(), Eq(false));
-	}
-	catch (...)
-	{
-		FAIL();
-		cout << "failed test avail" << endl;
-	}
+    ASSERT_THAT(holding.isAvailable(), Eq(false));
 }
 
 TEST_F(HoldingTest, CanSpecifyClassificationSeparatelyWhenCreated) {
@@ -117,17 +103,16 @@ TEST_F(HoldingTest, IsNotAvailableWhenCreatedWithSeparateClassificationAndCopy) 
 * assignment copy all members
 */
 TEST_F(HoldingTest, AssignmentCopiesAllMembers) {
-	ASSERT_THAT(holding, NotNull());
 	// transfer to a different branch
-    holding->transfer(EAST_BRANCH);
-    Holding newHolding = *holding;
+    holding.transfer(EAST_BRANCH);
+    Holding newHolding = holding;
     ASSERT_THAT(newHolding.classification(), Eq(THE_TRIAL_CLASSIFICATION));
-    ASSERT_THAT(newHolding.copyNumber(), Eq(holding->copyNumber()));
-    ASSERT_THAT(IsAvailableAt(&newHolding, EAST_BRANCH), Eq(true));
+    ASSERT_THAT(newHolding.copyNumber(), Eq(holding.copyNumber()));
+    ASSERT_THAT(IsAvailableAt(newHolding, EAST_BRANCH), Eq(true));
 }
 
 TEST_F(HoldingTest, TransferMakesHoldingAvailableAtBranch) {
-    holding->transfer(EAST_BRANCH);
+    holding.transfer(EAST_BRANCH);
 
     ASSERT_THAT(IsAvailableAt(holding, EAST_BRANCH), Eq(true));
 }
@@ -139,21 +124,21 @@ TEST_F(HoldingTest, BarCodeCombinesClassificationAndCopyNumber) {
 }
 
 TEST_F(HoldingTest, AreEqualWhenClassificationAndCopyMatch) {
-    Holding copy(holding->classification(), holding->copyNumber());
+    Holding copy(holding.classification(), holding.copyNumber());
 
-    ASSERT_THAT(*holding == copy, Eq(true));
+    ASSERT_THAT(holding == copy, Eq(true));
 }
 
 TEST_F(HoldingTest, AreUnequalWhenCopyDoesNotMatch) {
-    Holding extraCopy(holding->classification(), holding->copyNumber() + 1);
+    Holding extraCopy(holding.classification(), holding.copyNumber() + 1);
 
-    ASSERT_THAT(*holding != extraCopy, Eq(true));
+    ASSERT_THAT(holding != extraCopy, Eq(true));
 }
 
 TEST_F(HoldingTest, AreUnequalWhenClassificationDoesNotMatch) {
-    Holding differentBook(holding->classification() + "X", 1);
+    Holding differentBook(holding.classification() + "X", 1);
 
-    ASSERT_THAT(*holding != differentBook, Eq(true));
+    ASSERT_THAT(holding != differentBook, Eq(true));
 }
 
 TEST_F(HoldingTest, IsLessThanWhenClassificationsAreLessThan) {
@@ -178,24 +163,24 @@ TEST_F(HoldingTest, IsNotLessThanWhenBarcodesAreEqual) {
 }
 
 TEST_F(HoldingTest, ck) {
-    holding->transfer(EAST_BRANCH);
+    holding.transfer(EAST_BRANCH);
     date ckon(2007, Mar, 1);
-    holding->checkOut(ckon);
-    ASSERT_THAT(holding->isAvailable(), Eq(false));
-    ASSERT_THAT(holding->lastCheckedOutOn(), Eq(ckon));
+    holding.checkOut(ckon);
+    ASSERT_THAT(holding.isAvailable(), Eq(false));
+    ASSERT_THAT(holding.lastCheckedOutOn(), Eq(ckon));
     // verify late
     date_duration daysCheckedOut(Book::BOOK_CHECKOUT_PERIOD + 0);
     date expectedDue = ckon + daysCheckedOut;
-    ASSERT_THAT(holding->dueDate(), Eq(expectedDue));
+    ASSERT_THAT(holding.dueDate(), Eq(expectedDue));
 }
 
 TEST_F(HoldingTest, Ckin) {
-    holding->transfer(EAST_BRANCH);
+    holding.transfer(EAST_BRANCH);
     date checkoutOn(2007, Mar, 1);
-    holding->checkOut(checkoutOn);
+    holding.checkOut(checkoutOn);
     date checkinOn(2007, Mar, 2);
     Branch branch2("2", "branch2");
-    holding->checkIn(checkinOn, branch2);
+    holding.checkIn(checkinOn, branch2);
     ASSERT_THAT(IsAvailableAt(holding, branch2), Eq(true));
 }
 
@@ -210,7 +195,7 @@ TEST_F(HoldingTest, Due) {
 
 TEST_F(HoldingTest, MoviesDueCheckoutPeriodDaysAfterCheckout) {
     Holding movie(SEVEN_CLASSIFICATION, 1);
-    MakeAvailableAtABranch(&movie);
+    MakeAvailableAtABranch(movie);
     movie.checkOut(ARBITRARY_DATE);
     ASSERT_THAT(movie.dueDate(),
         Eq(ARBITRARY_DATE + date_duration(Book::MOVIE_CHECKOUT_PERIOD)));

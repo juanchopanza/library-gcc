@@ -18,7 +18,6 @@ This test class is a mess. Opportunities for cleanup might include:
 
  - AAA used but no visual separation
  - seeming use of AAA but it's not really
- - unnecessary code (null checks? try/catch?)
  - constant names that obscure relevant information
  - can data be created in the test?
  - poor / inconsistent test names
@@ -28,20 +27,8 @@ This test class is a mess. Opportunities for cleanup might include:
  - dead code
  */
 
-class HoldingTest : public Test
+namespace
 {
-public:
-    Holding holding;
-    static const date ARBITRARY_DATE;
-    virtual void SetUp() {
-        holding = Holding(THE_TRIAL_CLASSIFICATION, 1);
-    }
-
-    void VerifyAvailability(const Branch& branch) {
-        ASSERT_THAT(holding.currentBranch(), Eq(branch));
-        ASSERT_THAT(holding.isAvailable(), Eq(branch != Branch::CHECKED_OUT));
-    }
-
     bool IsAvailableAt(const Holding& aHolding, const Branch& branch) {
         return aHolding.currentBranch() == branch &&
             aHolding.isAvailable();
@@ -50,6 +37,13 @@ public:
     void MakeAvailableAtABranch(Holding& holding) {
         holding.transfer(EAST_BRANCH);
     }
+}
+
+class HoldingTest : public Test
+{
+public:
+    Holding holding{THE_TRIAL_CLASSIFICATION, 1};
+    static const date ARBITRARY_DATE;
 };
 
 const date HoldingTest::ARBITRARY_DATE(2013, Jan, 1);

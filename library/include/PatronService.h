@@ -16,6 +16,7 @@ public:
     void add(const Patron&);
     bool find(Patron&) const;
     Patron findByCardNumber(const std::string& cardNumber) const;
+    Patron findByClassification(const std::string& classification) const;
     short patronCount() const;
     void update(const Patron&);
     std::vector<Patron> getAll() const; // bad!

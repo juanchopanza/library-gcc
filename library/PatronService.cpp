@@ -39,6 +39,23 @@ Patron PatronService::findByCardNumber(const string& cardNumber) const {
     return mPatronAccess.findByCardNumber(cardNumber);
 }
 
+Patron PatronService::findByClassification(const std::string& classification) const
+{
+    Patron f;
+    for (const auto& p : getAll())
+    {
+        for (const auto& holding: p.holdings())
+        {
+            if (classification == holding.classification())
+            {
+                f = p;
+                break;
+            }
+        }
+    }
+    return f;
+}
+
 short PatronService::patronCount() const {
     return mPatronAccess.size();
 }

@@ -13,28 +13,6 @@ using namespace std;
 using boost::gregorian::date;
 using namespace service;
 
-namespace
-{
-    // locate the patron with the checked out book
-    // could introduce a patron reference ID in the holding...
-    auto findPatron(const string& classification, const std::vector<Patron>& patrons)->Patron
-    {
-        Patron f;
-        for (const auto& p : patrons)
-        {
-            for (const auto& holding: p.holdings())
-            {
-                if (classification == holding.classification())
-                {
-                    f = p;
-                    break;
-                }
-            }
-        }
-        return f;
-    };
-
-}
 HoldingService::HoldingService() {}
 
 HoldingService::~HoldingService() {}
@@ -115,7 +93,7 @@ void HoldingService::checkIn(const string& barCode, date date, const string& bra
     holding.checkIn(date, branch);
     mCatalog.update(holding);
 
-    Patron f = findPatron(holding.classification(), mPatronService.getAll());
+    Patron f = mPatronService.findByClassification(holding.classification());
     // remove the book from the patron
     f.returnHolding(holding);
 

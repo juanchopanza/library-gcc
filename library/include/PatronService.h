@@ -6,10 +6,12 @@
 #include <vector>
 
 class Patron;
+class CreditVerifier;
 
 class PatronService {
 public:
     PatronService();
+    explicit PatronService(const CreditVerifier* verifier) : mVerifier(verifier) {}
     virtual ~PatronService(void);
 
     void add(const std::string& name, const std::string& cardNumber);
@@ -24,6 +26,7 @@ public:
 
 private:
     PatronAccess mPatronAccess;
+    const CreditVerifier* mVerifier = nullptr;
 };
 
 #endif

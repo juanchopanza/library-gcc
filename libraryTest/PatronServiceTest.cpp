@@ -2,6 +2,7 @@
 #include "Patron.h"
 #include "Holding.h"
 #include "ClassificationData.h"
+#include "CreditVerifier.h"
 
 #include "gmock/gmock.h"
 
@@ -47,6 +48,23 @@ TEST_F(PatronServiceTest, AddIncrementsCount) {
 
     service.add(*jane);
     ASSERT_THAT(service.patronCount(), Eq(2));
+}
+
+TEST(APatronServiceWithVerification, AddFailsWhenCreditLow) {
+    struct FailVerifier : CreditVerifier
+    {
+        unsigned int creditScore(const std::string& cardNumber) const override
+        {
+            // PatronService cuts as 650
+            return 649;
+        }
+    } verifier;
+
+    PatronService service(&verifier);
+    //ASSERT_THAT(service.patronCount(), Eq(0));
+    Patron joe("Joe", "p1");
+    service.add(joe);
+    ASSERT_THAT(service.patronCount(), Eq(0));
 }
 
 TEST_F(PatronServiceTest, DeleteAllSetsCountToZero) {

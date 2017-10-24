@@ -1,6 +1,7 @@
 #include "PatronService.h"
 #include "PatronAccess.h"
 #include "Patron.h"
+#include "CreditVerifier.h"
 
 #include <vector>
 
@@ -24,7 +25,10 @@ void PatronService::add(const string& name, const string& cardNumber) {
 }
 
 void PatronService::add(const Patron& patron) {
-    mPatronAccess.save(patron);
+    if (!mVerifier)
+        mPatronAccess.save(patron);
+    else if (mVerifier->creditScore(patron.creditCardNumber()) >= 650)
+        mPatronAccess.save(patron);
 }
 
 void PatronService::update(const Patron& patron) {

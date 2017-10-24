@@ -108,3 +108,21 @@ TEST_F(PatronServiceTest, MembersFullyPopulatedInFoundPatron) {
     ASSERT_THAT(retrieved.fineBalance(), Eq(20));
     ASSERT_THAT(retrieved.holdings(), Eq(set<Holding>{ theTrial }));
 }
+
+TEST_F(PatronServiceTest, RetrievesPatronByClassification) {
+    Holding theTrial(THE_TRIAL_CLASSIFICATION, 1);
+    joe->borrow(theTrial);
+    service.add(*joe);
+
+    Patron retrieved = service.findByClassification(THE_TRIAL_CLASSIFICATION);
+
+    ASSERT_THAT(retrieved.name(), StrEq(joe->name()));
+}
+
+TEST_F(PatronServiceTest, RetrievesDefaultPatronWhenNotFoundByClassification) {
+    service.add(*joe);
+
+    Patron retrieved = service.findByClassification(THE_TRIAL_CLASSIFICATION);
+
+    ASSERT_THAT(retrieved.name(), StrEq(""));
+}

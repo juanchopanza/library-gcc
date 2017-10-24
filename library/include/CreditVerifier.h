@@ -5,7 +5,8 @@
 
 class CreditVerifier {
 public:
-    virtual unsigned int creditScore(const std::string& cardNumber) = 0;
+    virtual unsigned int creditScore(const std::string& cardNumber) const = 0;
+    virtual ~CreditVerifier() = default;
 };
 
 #endif

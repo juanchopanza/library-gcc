@@ -89,31 +89,20 @@ void HoldingService::checkIn(const string& barCode, date date, const string& bra
 
     auto hld = findByBarCode(barCode);
 
-    vector<Patron> patrons;
-
     // set the holding to returned status
-    set<Holding> holdings;
     hld.checkIn(date, branch);
     mCatalog.update(hld);
 
-    patrons = mPatronService.getAll();
-
-    Holding patHld;
+    auto patrons = mPatronService.getAll();
 
     // locate the patron with the checked out book
     // could introduce a patron reference ID in the holding...
     Patron f;
-    Patron p;
-    vector<Patron>::const_iterator it;
-    for (it = patrons.begin();
-        it != patrons.end();
-        it++) {
-        p = *it;
-        holdings = p.holdings();
-        set<Holding>::const_iterator it1;
-        for (it1 = holdings.begin(); it1 != holdings.end(); it1++) {
-            patHld = *it1;
-            if (hld.classification() == patHld.classification())
+    for (const auto& p : patrons)
+    {
+        for (auto& holding: p.holdings())
+        {
+            if (hld.classification() == holding.classification())
                 f = p;
         }
     }

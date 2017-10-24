@@ -42,7 +42,7 @@ namespace
 class HoldingTest : public Test
 {
 public:
-    Holding holding{THE_TRIAL_CLASSIFICATION, 1};
+    Holding holding_{THE_TRIAL_CLASSIFICATION, 1};
     static const date ARBITRARY_DATE;
 };
 
@@ -98,17 +98,17 @@ TEST_F(HoldingTest, IsNotAvailableWhenCreatedWithSeparateClassificationAndCopy) 
 */
 TEST_F(HoldingTest, AssignmentCopiesAllMembers) {
 	// transfer to a different branch
-    holding.transfer(EAST_BRANCH);
-    Holding newHolding = holding;
+    holding_.transfer(EAST_BRANCH);
+    Holding newHolding = holding_;
     ASSERT_THAT(newHolding.classification(), Eq(THE_TRIAL_CLASSIFICATION));
-    ASSERT_THAT(newHolding.copyNumber(), Eq(holding.copyNumber()));
+    ASSERT_THAT(newHolding.copyNumber(), Eq(holding_.copyNumber()));
     ASSERT_THAT(IsAvailableAt(newHolding, EAST_BRANCH), Eq(true));
 }
 
 TEST_F(HoldingTest, TransferMakesHoldingAvailableAtBranch) {
-    holding.transfer(EAST_BRANCH);
+    holding_.transfer(EAST_BRANCH);
 
-    ASSERT_THAT(IsAvailableAt(holding, EAST_BRANCH), Eq(true));
+    ASSERT_THAT(IsAvailableAt(holding_, EAST_BRANCH), Eq(true));
 }
 
 TEST_F(HoldingTest, BarCodeCombinesClassificationAndCopyNumber) {
@@ -118,21 +118,21 @@ TEST_F(HoldingTest, BarCodeCombinesClassificationAndCopyNumber) {
 }
 
 TEST_F(HoldingTest, AreEqualWhenClassificationAndCopyMatch) {
-    Holding copy(holding.classification(), holding.copyNumber());
+    Holding copy(holding_.classification(), holding_.copyNumber());
 
-    ASSERT_THAT(holding == copy, Eq(true));
+    ASSERT_THAT(holding_ == copy, Eq(true));
 }
 
 TEST_F(HoldingTest, AreUnequalWhenCopyDoesNotMatch) {
-    Holding extraCopy(holding.classification(), holding.copyNumber() + 1);
+    Holding extraCopy(holding_.classification(), holding_.copyNumber() + 1);
 
-    ASSERT_THAT(holding != extraCopy, Eq(true));
+    ASSERT_THAT(holding_ != extraCopy, Eq(true));
 }
 
 TEST_F(HoldingTest, AreUnequalWhenClassificationDoesNotMatch) {
-    Holding differentBook(holding.classification() + "X", 1);
+    Holding differentBook(holding_.classification() + "X", 1);
 
-    ASSERT_THAT(holding != differentBook, Eq(true));
+    ASSERT_THAT(holding_ != differentBook, Eq(true));
 }
 
 TEST_F(HoldingTest, IsLessThanWhenClassificationsAreLessThan) {
@@ -157,25 +157,25 @@ TEST_F(HoldingTest, IsNotLessThanWhenBarcodesAreEqual) {
 }
 
 TEST_F(HoldingTest, ck) {
-    holding.transfer(EAST_BRANCH);
+    holding_.transfer(EAST_BRANCH);
     date ckon(2007, Mar, 1);
-    holding.checkOut(ckon);
-    ASSERT_THAT(holding.isAvailable(), Eq(false));
-    ASSERT_THAT(holding.lastCheckedOutOn(), Eq(ckon));
+    holding_.checkOut(ckon);
+    ASSERT_THAT(holding_.isAvailable(), Eq(false));
+    ASSERT_THAT(holding_.lastCheckedOutOn(), Eq(ckon));
     // verify late
     date_duration daysCheckedOut(Book::BOOK_CHECKOUT_PERIOD + 0);
     date expectedDue = ckon + daysCheckedOut;
-    ASSERT_THAT(holding.dueDate(), Eq(expectedDue));
+    ASSERT_THAT(holding_.dueDate(), Eq(expectedDue));
 }
 
 TEST_F(HoldingTest, Ckin) {
-    holding.transfer(EAST_BRANCH);
+    holding_.transfer(EAST_BRANCH);
     date checkoutOn(2007, Mar, 1);
-    holding.checkOut(checkoutOn);
+    holding_.checkOut(checkoutOn);
     date checkinOn(2007, Mar, 2);
     Branch branch2("2", "branch2");
-    holding.checkIn(checkinOn, branch2);
-    ASSERT_THAT(IsAvailableAt(holding, branch2), Eq(true));
+    holding_.checkIn(checkinOn, branch2);
+    ASSERT_THAT(IsAvailableAt(holding_, branch2), Eq(true));
 }
 
 TEST_F(HoldingTest, Due) {

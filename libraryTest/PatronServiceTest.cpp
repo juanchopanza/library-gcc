@@ -31,6 +31,7 @@ public:
     }
 
     virtual void TearDown() {
+        APatronService::TearDown();
         delete jane;
         delete joe;
     }
@@ -59,10 +60,9 @@ TEST_F(PatronServiceTest, AddIncrementsCount) {
 TEST_F(APatronService, AddFailsWhenCreditLow) {
     struct FailVerifier : CreditVerifier
     {
-        unsigned int creditScore(const std::string& cardNumber) const override
+        bool hasCredit(const std::string &cardNumber) const override
         {
-            // PatronService cuts as 650
-            return 649;
+            return false;
         }
     } verifier;
 
@@ -75,10 +75,9 @@ TEST_F(APatronService, AddFailsWhenCreditLow) {
 TEST_F(APatronService, AddSucceedsWhenCreditSufficient) {
     struct SuccessVerifier : CreditVerifier
     {
-        unsigned int creditScore(const std::string& cardNumber) const override
+        bool hasCredit(const std::string &cardNumber) const override
         {
-            // PatronService cuts as 650
-            return 650;
+            return true;
         }
     } verifier;
 
@@ -92,12 +91,11 @@ TEST_F(APatronService, verificationUsesCreditCardNumber) {
 
     struct SuccessVerifier : CreditVerifier
     {
-        unsigned int creditScore(const std::string& cardNumber) const override
+        bool hasCredit(const std::string &cardNumber) const override
         {
-            // PatronService cuts as 650
-            const static std::map<std::string, unsigned int> CREDIT_MAP = {
-                {"LOW_CREDIT", 649},
-                {"OK_CREDIT", 650}
+            const static std::map<std::string, bool> CREDIT_MAP = {
+                {"LOW_CREDIT", false},
+                {"OK_CREDIT", true}
             };
             return CREDIT_MAP.at(cardNumber);
         }

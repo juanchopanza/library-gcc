@@ -27,7 +27,7 @@ void PatronService::add(const string& name, const string& cardNumber) {
 void PatronService::add(const Patron& patron) {
     if (!mVerifier)
         mPatronAccess.save(patron);
-    else if (mVerifier->creditScore(patron.creditCardNumber()) >= 650)
+    else if (mVerifier->hasCredit(patron.creditCardNumber()))
         mPatronAccess.save(patron);
 }
 

@@ -37,6 +37,10 @@ public:
     }
 };
 
+struct CreditVerifierMock : CreditVerifier{
+    MOCK_CONST_METHOD1(hasCredit, bool(const std::string&));
+};
+
 TEST_F(PatronServiceTest, CountInitiallyZero) {
     ASSERT_THAT(service.patronCount(), Eq(0));
 }
@@ -58,52 +62,34 @@ TEST_F(PatronServiceTest, AddIncrementsCount) {
 }
 
 TEST_F(APatronService, AddFailsWhenCreditLow) {
-    struct FailVerifier : CreditVerifier
-    {
-        bool hasCredit(const std::string &cardNumber) const override
-        {
-            return false;
-        }
-    } verifier;
+    CreditVerifierMock verifier;
 
     PatronService service(&verifier);
     Patron joe("Joe", "p1");
+    EXPECT_CALL(verifier, hasCredit(joe.creditCardNumber())).WillOnce(Return(false));
     service.add(joe);
     ASSERT_THAT(service.patronCount(), Eq(0));
 }
 
 TEST_F(APatronService, AddSucceedsWhenCreditSufficient) {
-    struct SuccessVerifier : CreditVerifier
-    {
-        bool hasCredit(const std::string &cardNumber) const override
-        {
-            return true;
-        }
-    } verifier;
-
+    CreditVerifierMock verifier;
     PatronService service(&verifier);
     Patron joe("Joe", "p1");
+    EXPECT_CALL(verifier, hasCredit(joe.creditCardNumber())).WillOnce(Return(true));
     service.add(joe);
     ASSERT_THAT(service.patronCount(), Eq(1));
 }
 
-TEST_F(APatronService, verificationUsesCreditCardNumber) {
-
-    struct SuccessVerifier : CreditVerifier
-    {
-        bool hasCredit(const std::string &cardNumber) const override
-        {
-            const static std::map<std::string, bool> CREDIT_MAP = {
-                {"LOW_CREDIT", false},
-                {"OK_CREDIT", true}
-            };
-            return CREDIT_MAP.at(cardNumber);
-        }
-    } verifier;
+TEST_F(APatronService, verificationUsesCreditCardNumber)
+{
+    CreditVerifierMock verifier;
 
     PatronService service(&verifier);
     Patron joe("Joe", "p1", "LOW_CREDIT");
     Patron jane("Jane", "p11", "OK_CREDIT");
+    EXPECT_CALL(verifier, hasCredit(joe.creditCardNumber())).WillOnce(Return(false));
+    EXPECT_CALL(verifier, hasCredit(jane.creditCardNumber())).WillOnce(Return(true));
+
     service.add(joe);
     service.add(jane);
     auto patrons = service.getAll();

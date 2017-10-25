@@ -3,6 +3,7 @@
 #include "Holding.h"
 #include "ClassificationData.h"
 #include "CreditVerifier.h"
+#include "Emailer.h"
 
 #include "gmock/gmock.h"
 
@@ -39,6 +40,11 @@ public:
 
 struct CreditVerifierMock : CreditVerifier{
     MOCK_CONST_METHOD1(hasCredit, bool(const std::string&));
+};
+
+struct EmailerMock : Emailer
+{
+    MOCK_CONST_METHOD4(send, void(const string&, const string&, const string&, const string&));
 };
 
 TEST_F(PatronServiceTest, CountInitiallyZero) {
@@ -78,6 +84,18 @@ TEST_F(APatronService, AddSucceedsWhenCreditSufficient) {
     EXPECT_CALL(verifier, hasCredit(joe.creditCardNumber())).WillOnce(Return(true));
     service.add(joe);
     ASSERT_THAT(service.patronCount(), Eq(1));
+}
+
+TEST_F(APatronService, AddFailureSendsEmail) {
+    CreditVerifierMock verifier;
+    EmailerMock emailer;
+
+	PatronService service(&verifier, &emailer);
+	Patron joe("Joe", "p1");
+	EXPECT_CALL(verifier, hasCredit(joe.creditCardNumber())).WillOnce(Return(false));
+	EXPECT_CALL(emailer, send(_, _, _, _)).WillOnce(Return());
+	service.add(joe);
+	ASSERT_THAT(service.patronCount(), Eq(0));
 }
 
 TEST_F(APatronService, verificationUsesCreditCardNumber)

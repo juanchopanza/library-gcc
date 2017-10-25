@@ -2,6 +2,7 @@
 #include "PatronAccess.h"
 #include "Patron.h"
 #include "CreditVerifier.h"
+#include "Emailer.h"
 
 #include <vector>
 
@@ -28,7 +29,12 @@ void PatronService::add(const Patron& patron) {
     if (!mVerifier)
         mPatronAccess.save(patron);
     else if (mVerifier->hasCredit(patron.creditCardNumber()))
+    {
         mPatronAccess.save(patron);
+    } else
+    {
+        if (mEmailer) mEmailer->send("", "", "", "");
+    }
 }
 
 void PatronService::update(const Patron& patron) {
